@@ -5,31 +5,24 @@ from PIL import Image
 import gdown
 
 # Google Drive File ID
-file_id = "1Wcizk9nXzhZnvZXlfhCIv1AeK3H2Uy4A"
+file_id = "1Wcizk9nXzhZnvZXlfhCIv1AeK3H2Uy4A"  # Replace with your file ID
 url = f"https://drive.google.com/uc?id={file_id}"
 output = "my_model.keras"  # Local filename for the model
 
-# Download the model file from Google Drive
+# Download the model file from Google Drive (only needed if model is not present locally)
 gdown.download(url, output, quiet=False)
 
 # Load the model
 model = tf.keras.models.load_model(output)
-
-# Check model input shape
-st.write(f"Expected model input shape: {model.input_shape}")
 
 # Define class labels (adjust as needed)
 class_names = ["No Disease", "Disease"]
 
 # Function to preprocess the image
 def preprocess_image(image):
-    # Resize and convert to grayscale if needed, ensure it matches model input shape
-    image = image.convert('L')  # Convert image to grayscale
-    image = image.resize((128, 128))  # Adjust based on your model input size
-    image = np.array(image) / 255.0  # Normalize
-    image = np.expand_dims(image, axis=-1)  # Add channel dimension for grayscale
-    image = np.expand_dims(image, axis=0)  # Add batch dimension
-    image = image.astype(np.float32)  # Ensure the type is float32
+    image = image.resize((128, 128))  # Resize to match the model's input size
+    image = np.array(image) / 255.0  # Normalize image values between 0 and 1
+    image = np.expand_dims(image, axis=0)  # Add batch dimension (for single image)
     return image
 
 # Streamlit UI
@@ -44,11 +37,9 @@ if uploaded_file is not None:
     
     # Preprocess and predict
     processed_image = preprocess_image(image)
-    st.write(f"Processed image shape: {processed_image.shape}")  # Debugging
-    try:
-        prediction = model.predict(processed_image)
-        # Display result
-        result = class_names[int(prediction[0] > 0.5)]
-        st.write(f"### Prediction: {result}")
-    except Exception as e:
-        st.write(f"Error during prediction: {e}")
+    prediction = model.predict(processed_image)
+    
+    # Display result
+    result = class_names[int(prediction[0] > 0.5)]
+    st.write(f"### Prediction: {result}")
+
