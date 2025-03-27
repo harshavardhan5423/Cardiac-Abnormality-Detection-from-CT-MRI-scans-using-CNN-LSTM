@@ -1,17 +1,24 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.preprocessing import image
 from PIL import Image
-import io
+import gdown
 
-# Load the trained model
-model = tf.keras.models.load_model('my_model.keras')
+# Google Drive File ID
+file_id = "1Wcizk9nXzhZnvZXlfhCIv1AeK3H2Uy4A"  # Replace with your file ID
+url = f"https://drive.google.com/uc?id={file_id}"
+output = "my_model.keras"  # Local filename for the model
 
-# Define class names (adjust these as per your dataset)
-class_names = ['No Disease', 'Disease']
+# Download the model file from Google Drive (only needed if model is not present locally)
+gdown.download(url, output, quiet=False)
 
-# Preprocess the input image
+# Load the model
+model = tf.keras.models.load_model(output)
+
+# Define class labels (adjust as needed)
+class_names = ["No Disease", "Disease"]
+
+# Preprocess the image
 def preprocess_image(img):
     img = img.resize((128, 128))  # Resize the image to match model input
     img_array = np.array(img)  # Convert image to numpy array
@@ -43,4 +50,3 @@ if uploaded_file is not None:
     # Optionally, display the confidence score
     confidence = prediction[0] * 100
     st.write(f"Confidence: {confidence:.2f}%")
-
