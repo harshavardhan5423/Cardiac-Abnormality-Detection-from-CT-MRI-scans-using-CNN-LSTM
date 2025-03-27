@@ -4,13 +4,10 @@ import numpy as np
 from PIL import Image
 import gdown
 
-# Google Drive File ID
-file_id = "1Wcizk9nXzhZnvZXlfhCIv1AeK3H2Uy4A"  # Replace with your file ID
+# Google Drive File ID (Extracted from your link)
+file_id = "1PxbTxl7ZekbljneIovPmXGJ_lRzkQqg0"
 url = f"https://drive.google.com/uc?id={file_id}"
-output = "my_model.keras"  # Local filename for the model
-
-# Download the model file from Google Drive (only needed if model is not present locally)
-gdown.download(url, output, quiet=False)
+output = "my_model.h5"
 
 # Load the model
 model = tf.keras.models.load_model(output)
