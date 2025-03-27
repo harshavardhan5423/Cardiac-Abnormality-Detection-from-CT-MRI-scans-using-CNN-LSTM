@@ -3,6 +3,22 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
+import gdown
+import tensorflow as tf
+
+# Google Drive File ID
+file_id = "1Wcizk9nXzhZnvZXlfhCIv1AeK3H2Uy4A"
+url = f"https://drive.google.com/uc?id={file_id}"
+output = "my_model.keras"  # Local filename for the model
+
+# Download the model file from Google Drive
+gdown.download(url, output, quiet=False)
+
+# Load the model
+model = tf.keras.models.load_model(output)
+
+# Now you can use the model in your Streamlit app
+
 # Load the trained model
 model = tf.keras.models.load_model('my_model.keras')  # Change if using .h5
 
