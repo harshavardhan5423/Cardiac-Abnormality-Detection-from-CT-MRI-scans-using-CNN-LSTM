@@ -1,67 +1,46 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
+from tensorflow.keras.preprocessing import image
 from PIL import Image
-import gdown
+import io
 
-# Google Drive File ID
-file_id = "1Wcizk9nXzhZnvZXlfhCIv1AeK3H2Uy4A"  # Replace with your file ID
-url = f"https://drive.google.com/uc?id={file_id}"
-output = "my_model.keras"  # Local filename for the model
+# Load the trained model
+model = tf.keras.models.load_model('my_model.keras')
 
-# Download the model file from Google Drive (only needed if model is not present locally)
-gdown.download(url, output, quiet=False)
+# Define class names (adjust these as per your dataset)
+class_names = ['No Disease', 'Disease']
 
-# Load the model
-model = tf.keras.models.load_model(output)
+# Preprocess the input image
+def preprocess_image(img):
+    img = img.resize((128, 128))  # Resize the image to match model input
+    img_array = np.array(img)  # Convert image to numpy array
+    img_array = np.expand_dims(img_array, axis=-1)  # Add channel dimension
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    return img_array
 
-# Define class labels (adjust as needed)
-class_names = ["No Disease", "Disease"]
+# Set up the Streamlit app UI
+st.title("Cardiovascular Disease Detection")
 
-# Function to preprocess the image (adjusted to fit input shape)
-def preprocess_image(image):
-    # Resize image to match model input size
-    image = image.resize((128, 128))  # Resize to 128x128
-    image = np.array(image) / 255.0  # Normalize image values to between 0 and 1
-    
-    # If model expects 10 time steps, we simulate it by repeating the same image
-    image = np.expand_dims(image, axis=-1)  # Add channel dimension (grayscale)
-    image = np.expand_dims(image, axis=0)  # Add batch dimension (shape: 1, 128, 128, 1)
-    
-    # Now repeat the image 10 times to simulate time steps
-    image = np.repeat(image, 10, axis=1)  # Repeat along the time axis
-    
-    image = np.expand_dims(image, axis=0)  # Add final batch dimension, making shape (1, 10, 128, 128, 1)
-    return image
-
-# Streamlit UI
-st.title("Disease Detection ML Model")
-st.write("Upload an image to check for disease.")
-
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
+# File uploader for image input
+uploaded_file = st.file_uploader("Upload an Image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    # Read and display the image
+    img = Image.open(uploaded_file)
+    st.image(img, caption="Uploaded Image", use_column_width=True)
     
-    # Preprocess and predict
-    processed_image = preprocess_image(image)
+    # Preprocess the image
+    processed_image = preprocess_image(img)
     
-    # Redefine the model using the Functional API
-    inputs = tf.keras.Input(shape=(10, 128, 128, 1))  # Define input shape (10 time steps, 128x128 images, 1 channel)
-    
-    # Pass input through the original layers of the model manually
-    x = model.layers[0](inputs)  # Assuming model.layers[0] is the first layer
-    x = tf.keras.layers.Flatten()(x)  # Add Flatten layer
-    for layer in model.layers[1:]:
-        x = layer(x)  # Apply remaining layers sequentially
-    
-    # Create the new model
-    new_model = tf.keras.Model(inputs=inputs, outputs=x)
-    
-    # Predict
-    prediction = new_model.predict(processed_image)
+    # Make the prediction
+    prediction = model.predict(processed_image)
     
     # Display result
-    result = class_names[int(prediction[0] > 0.5)]
-    st.write(f"### Prediction: {result}")
+    result = class_names[int(prediction[0] > 0.5)]  # If prediction > 0.5, it's Disease; else No Disease
+    st.write(f"Prediction: {result}")
+    
+    # Optionally, display the confidence score
+    confidence = prediction[0] * 100
+    st.write(f"Confidence: {confidence:.2f}%")
+
