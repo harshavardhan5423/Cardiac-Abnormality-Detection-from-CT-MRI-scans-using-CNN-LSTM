@@ -4,30 +4,29 @@ import numpy as np
 from PIL import Image
 import gdown
 
-# Google Drive File ID
-file_id = "1gU-jFBXN1wxpduASb6mXrp6l4a5J69U4"  # Replace with your file ID
+# Google Drive File ID (Replace with your actual model file ID)
+file_id = "1gU-jFBXN1wxpduASb6mXrp6l4a5J69U4"  # Update this to your model's file ID
 url = f"https://drive.google.com/uc?id={file_id}"
-output = "my_model.keras"  # Change to .h5 format
+output = "my_model.keras"  # Local filename for the model
 
-# Download the model file from Google Drive (only if not present locally)
+# Download the model file from Google Drive (only needed if model is not present locally)
 gdown.download(url, output, quiet=False)
 
-# ✅ Load the .h5 model
+# Load the model
 model = tf.keras.models.load_model(output)
 
-# Define class labels
+# Define class labels (adjust as needed)
 class_names = ["No Disease", "Disease"]
 
-# Function to preprocess the image
+# Preprocess the image
 def preprocess_image(img):
-    img = img.convert("L")  # Convert to grayscale (if needed)
-    img = img.resize((128, 128))  # Resize the image
-    img_array = np.array(img, dtype=np.float32) / 255.0  # Normalize pixel values
-    img_array = np.expand_dims(img_array, axis=-1)  # Add channel dimension (128, 128, 1)
-    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension (1, 128, 128, 1)
+    img = img.resize((128, 128))  # Resize the image to match model input
+    img_array = np.array(img)  # Convert image to numpy array
+    img_array = np.expand_dims(img_array, axis=-1)  # Add channel dimension (grayscale)
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
     return img_array
 
-# Streamlit UI
+# Set up the Streamlit app UI
 st.title("Cardiovascular Disease Detection")
 
 # File uploader for image input
@@ -43,13 +42,12 @@ if uploaded_file is not None:
     
     # Make the prediction
     prediction = model.predict(processed_image)
-
-    # Interpret results
-    result = class_names[int(prediction[0][0] > 0.5)]  # If > 0.5, it's "Disease", else "No Disease"
-
-    # Display results
-    st.write(f"Prediction: **{result}**")
     
-    # Show confidence score
-    confidence = prediction[0][0] * 100
-    st.write(f"Confidence: **{confidence:.2f}%**")
+    # Interpret results
+    result = class_names[int(prediction[0] > 0.5)]  # If prediction > 0.5, it's Disease; else No Disease
+    st.write(f"Prediction: {result}")
+    
+    # Optionally, display the confidence score
+    confidence = prediction[0] * 100
+    st.write(f"Confidence: {confidence:.2f}%")
+
