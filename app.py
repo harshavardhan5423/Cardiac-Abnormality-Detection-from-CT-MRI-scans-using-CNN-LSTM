@@ -46,6 +46,14 @@ if uploaded_file is not None:
     
     # Preprocess and predict
     processed_image = preprocess_image(image)
+
+    # Add a Flatten layer before the LSTM layer in the model
+    model = tf.keras.Sequential([
+        model.layers[0],  # Assuming you have some layers before
+        tf.keras.layers.Flatten(),  # Flatten the output
+        model.layers[1:]  # Add remaining layers from the original model
+    ])
+    
     prediction = model.predict(processed_image)
     
     # Display result
