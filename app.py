@@ -47,9 +47,11 @@ if uploaded_file is not None:
     # Preprocess and predict
     processed_image = preprocess_image(image)
     
-    # Modify the model to include a Flatten layer before the LSTM layer
-    inputs = model.input
-    x = model.layers[0](inputs)  # Pass input through the first layer
+    # Redefine the model using the Functional API
+    inputs = tf.keras.Input(shape=(10, 128, 128, 1))  # Define input shape (10 time steps, 128x128 images, 1 channel)
+    
+    # Pass input through the original layers of the model manually
+    x = model.layers[0](inputs)  # Assuming model.layers[0] is the first layer
     x = tf.keras.layers.Flatten()(x)  # Add Flatten layer
     for layer in model.layers[1:]:
         x = layer(x)  # Apply remaining layers sequentially
