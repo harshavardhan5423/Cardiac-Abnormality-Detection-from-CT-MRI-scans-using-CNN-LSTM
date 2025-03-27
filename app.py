@@ -18,11 +18,17 @@ model = tf.keras.models.load_model(output)
 # Define class labels (adjust as needed)
 class_names = ["No Disease", "Disease"]
 
-# Function to preprocess the image
+# Function to preprocess the image (adjusted to fit input shape)
 def preprocess_image(image):
-    image = image.resize((128, 128))  # Resize to match the model's input size
-    image = np.array(image) / 255.0  # Normalize image values between 0 and 1
-    image = np.expand_dims(image, axis=0)  # Add batch dimension (for single image)
+    # Resize image to match model input size
+    image = image.resize((128, 128))  # Resize to 128x128
+    image = np.array(image) / 255.0  # Normalize image values to between 0 and 1
+    
+    # If model expects 10 time steps, we simulate it by repeating the same image
+    image = np.expand_dims(image, axis=-1)  # Add channel dimension (grayscale)
+    image = np.repeat(image, 10, axis=0)  # Repeat for 10 time steps
+    
+    image = np.expand_dims(image, axis=0)  # Add batch dimension
     return image
 
 # Streamlit UI
@@ -42,4 +48,3 @@ if uploaded_file is not None:
     # Display result
     result = class_names[int(prediction[0] > 0.5)]
     st.write(f"### Prediction: {result}")
-
