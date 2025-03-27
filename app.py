@@ -2,9 +2,7 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-
 import gdown
-import tensorflow as tf
 
 # Google Drive File ID
 file_id = "1Wcizk9nXzhZnvZXlfhCIv1AeK3H2Uy4A"
@@ -17,18 +15,16 @@ gdown.download(url, output, quiet=False)
 # Load the model
 model = tf.keras.models.load_model(output)
 
-# Now you can use the model in your Streamlit app
-
-# Load the trained model
-model = tf.keras.models.load_model('my_model.keras')  # Change if using .h5
-
 # Define class labels (adjust as needed)
 class_names = ["No Disease", "Disease"]
 
 # Function to preprocess the image
 def preprocess_image(image):
+    # Resize and convert to grayscale if needed, ensure it matches model input shape
+    image = image.convert('L')  # Convert image to grayscale
     image = image.resize((128, 128))  # Adjust based on your model input size
     image = np.array(image) / 255.0  # Normalize
+    image = np.expand_dims(image, axis=-1)  # Add channel dimension for grayscale
     image = np.expand_dims(image, axis=0)  # Add batch dimension
     return image
 
@@ -49,4 +45,3 @@ if uploaded_file is not None:
     # Display result
     result = class_names[int(prediction[0] > 0.5)]
     st.write(f"### Prediction: {result}")
-
