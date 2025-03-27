@@ -26,9 +26,12 @@ def preprocess_image(image):
     
     # If model expects 10 time steps, we simulate it by repeating the same image
     image = np.expand_dims(image, axis=-1)  # Add channel dimension (grayscale)
-    image = np.repeat(image, 10, axis=0)  # Repeat for 10 time steps
+    image = np.expand_dims(image, axis=0)  # Add batch dimension (shape: 1, 128, 128, 1)
     
-    image = np.expand_dims(image, axis=0)  # Add batch dimension
+    # Now repeat the image 10 times to simulate time steps
+    image = np.repeat(image, 10, axis=1)  # Repeat along the time axis
+    
+    image = np.expand_dims(image, axis=0)  # Add final batch dimension, making shape (1, 10, 128, 128, 1)
     return image
 
 # Streamlit UI
