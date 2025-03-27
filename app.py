@@ -15,6 +15,9 @@ gdown.download(url, output, quiet=False)
 # Load the model
 model = tf.keras.models.load_model(output)
 
+# Check model input shape
+st.write(f"Expected model input shape: {model.input_shape}")
+
 # Define class labels (adjust as needed)
 class_names = ["No Disease", "Disease"]
 
@@ -26,10 +29,11 @@ def preprocess_image(image):
     image = np.array(image) / 255.0  # Normalize
     image = np.expand_dims(image, axis=-1)  # Add channel dimension for grayscale
     image = np.expand_dims(image, axis=0)  # Add batch dimension
+    image = image.astype(np.float32)  # Ensure the type is float32
     return image
 
 # Streamlit UI
-st.title("CardioVascular Detection ML Model using CNN-LSTM")
+st.title("Disease Detection ML Model")
 st.write("Upload an image to check for disease.")
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
@@ -40,8 +44,11 @@ if uploaded_file is not None:
     
     # Preprocess and predict
     processed_image = preprocess_image(image)
-    prediction = model.predict(processed_image)
-    
-    # Display result
-    result = class_names[int(prediction[0] > 0.5)]
-    st.write(f"### Prediction: {result}")
+    st.write(f"Processed image shape: {processed_image.shape}")  # Debugging
+    try:
+        prediction = model.predict(processed_image)
+        # Display result
+        result = class_names[int(prediction[0] > 0.5)]
+        st.write(f"### Prediction: {result}")
+    except Exception as e:
+        st.write(f"Error during prediction: {e}")
