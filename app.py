@@ -29,7 +29,7 @@ def preprocess_image(image):
     return image
 
 # Streamlit UI
-st.title("Disease Detection ML Model")
+st.title("CardioVascular Detection ML Model using CNN-LSTM")
 st.write("Upload an image to check for disease.")
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
