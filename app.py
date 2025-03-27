@@ -5,9 +5,9 @@ from PIL import Image
 import gdown
 
 # Google Drive File ID
-file_id = "1PxbTxl7ZekbljneIovPmXGJ_lRzkQqg0"  # Replace with your file ID
+file_id = "1gU-jFBXN1wxpduASb6mXrp6l4a5J69U4"  # Replace with your file ID
 url = f"https://drive.google.com/uc?id={file_id}"
-output = "my_model.h5"  # Change to .h5 format
+output = "my_model.keras"  # Change to .h5 format
 
 # Download the model file from Google Drive (only if not present locally)
 gdown.download(url, output, quiet=False)
